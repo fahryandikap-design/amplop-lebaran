@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cetak Amplop Lebaran Otomatis</title>
+    <style>
+        :root {
+            --primary-green: #1b5e20;
+            --gold: #d4af37;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f0;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .no-print {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            max-width: 500px;
+            margin: 0 auto 30px auto;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        button {
+            background-color: var(--primary-green);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background-color: #2e7d32;
+            transform: scale(1.05);
+        }
+
+        /* Container Utama Amplop */
+        #render-target {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        /* Desain Amplop */
+        .amplop-card {
+            width: 16cm;
+            height: 9cm;
+            background: #ffffff;
+            border: 8px double var(--primary-green);
+            position: relative;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            page-break-after: always; /* Paksa ganti kertas saat print */
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+
+        /* Ornamen Pojok */
+        .amplop-card::before {
+            content: "🌙";
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 30px;
+        }
+
+        .amplop-card::after {
+            content: "🕌";
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-size: 30px;
+        }
+
+        .title {
+            color: var(--primary-green);
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            color: var(--gold);
+            font-size: 18px;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+
+        .label-to {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .nama-penerima {
+            font-size: 24px;
+            color: #333;
+            font-weight: 600;
+            padding: 10px 40px;
+            border-bottom: 2px dashed var(--gold);
+        }
+
+        .pesan-tambahan {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #888;
+        }
+
+        /* Pengaturan Cetak */
+        @media print {
+            body { background: white; padding: 0; }
+            .no-print { display: none; }
+            .amplop-card { 
+                box-shadow: none; 
+                margin: 0;
+                border: 4px solid var(--primary-green); /* Lebih tipis saat print */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="no-print">
+        <h2>🌙 Generator Amplop Lebaran</h2>
+        <p>Data diambil otomatis dari <b>data.json</b></p>
+        <button onclick="window.print()">Cetak Semua Amplop</button>
+    </div>
+
+    <div id="render-target">
+        <p>Sedang memuat data...</p>
+    </div>
+
+    <script>
+        // Fungsi mengambil data JSON
+        async function loadAmplopData() {
+            try {
+                const response = await fetch('data.json');
+                if (!response.ok) throw new Error('File JSON tidak ditemukan');
+                
+                const data = await response.json();
+                const container = document.getElementById('render-target');
+                container.innerHTML = ''; // Hapus tulisan loading
+
+                data.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'amplop-card';
+                    card.innerHTML = `
+                        <div class="title">Selamat Idul Fitri</div>
+                        <div class="subtitle">1445 Hijriah</div>
+                        <div class="label-to">Spesial Untuk:</div>
+                        <div class="nama-penerima">${item.nama}</div>
+                        <div class="pesan-tambahan">${item.ucapan || 'Mohon Maaf Lahir & Batin'}</div>
+                    `;
+                    container.appendChild(card);
+                });
+            } catch (error) {
+                document.getElementById('render-target').innerHTML = 
+                    `<p style="color:red">Gagal memuat data: ${error.message}</p>`;
+            }
+        }
+
+        // Jalankan fungsi saat web dibuka
+        loadAmplopData();
+    </script>
+</body>
+</html>
